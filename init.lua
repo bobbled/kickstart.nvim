@@ -838,7 +838,7 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -863,3 +863,39 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- My stuff
+vim.filetype.add { extensions = { gotmpl = 'yaml' } }
+
+vim.opt.autochdir = true
+
+vim.keymap.set('n', '<C-d>', '<C-d>zz')
+vim.keymap.set('n', '<C-u>', '<C-u>zz')
+vim.keymap.set('n', '<n>', 'nzzzv')
+vim.keymap.set('n', '<N>', 'Nzzzv')
+vim.keymap.set('n', '<leader>p', '"_dP')
+vim.keymap.set('n', '<leader>gi', ':Git<CR>')
+vim.keymap.set('n', '<leader>gc', ':Git commit<CR>')
+vim.keymap.set('n', '<leader>gp', ':Git push<CR>')
+vim.keymap.set('n', '<leader>gf', ':Git fetch --all --prune --tags<CR>')
+vim.keymap.set('n', '<leader>gl', ':Git pull<CR>')
+vim.keymap.set('n', '<leader>ga', ':Git add -A<CR>')
+vim.keymap.set('n', '<leader>be', ':B64Encode<CR>')
+vim.keymap.set('n', '<leader>bd', ':B64Decode<CR>')
+vim.keymap.set('n', '<leader>tn', ':tabnew<CR>')
+
+local function commitWithJira()
+  local handle = io.popen 'git branch --show-current'
+  local branchName = handle:read '*a'
+  handle:close()
+  local returnString = ':Git add -A <Bar> :Git commit -m '
+
+  local match = string.match(branchName, '^([^-]+-[^-]+)')
+  if match then
+    returnString = returnString .. match .. ' <Bar> :Git push<CR>'
+  else
+    returnString = ''
+  end
+  return returnString
+end
+vim.keymap.set('n', '<leader>gg', commitWithJira())
