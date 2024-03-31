@@ -6,6 +6,7 @@ return {
         ['a'] = { 'add', config = { show_path = 'relative' } },
         ['c'] = { 'copy', config = { show_path = 'relative' } },
         ['m'] = { 'move', config = { show_path = 'relative' } },
+        ['/'] = { 'noop' },
       },
     },
     filesystem = {
