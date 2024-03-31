@@ -227,7 +227,9 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
-
+  'tpope/vim-fugitive',
+  'taybart/b64.nvim',
+  's1n7ax/nvim-window-picker',
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
@@ -883,6 +885,7 @@ vim.keymap.set('n', '<leader>ga', ':Git add -A<CR>')
 vim.keymap.set('n', '<leader>be', ':B64Encode<CR>')
 vim.keymap.set('n', '<leader>bd', ':B64Decode<CR>')
 vim.keymap.set('n', '<leader>tn', ':tabnew<CR>')
+vim.keymap.set('n', '<leader>nn', ':NvimTreeOpen<CR>')
 
 local function commitWithJira()
   local handle = io.popen 'git branch --show-current'
