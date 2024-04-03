@@ -869,7 +869,21 @@ require('lazy').setup({
 -- My stuff
 vim.filetype.add { extensions = { gotmpl = 'yaml' } }
 
-vim.opt.autochdir = true
+-- vim.opt.autochdir = true
+
+vim.keymap.set('n', '<leader>gg', function()
+  local handle = io.popen 'git branch --show-current'
+  local branchName = handle:read '*a'
+  handle:close()
+
+  local match = string.match(branchName, '^([^-]+-[^-]+)')
+  if not match then
+    match = 'bleh'
+  end
+  vim.cmd ':Git add -A'
+  vim.cmd(':Git commit -m ' .. match)
+  vim.cmd ':Git push'
+end)
 
 vim.keymap.set('n', '<C-d>', '<C-d>zz')
 vim.keymap.set('n', '<C-u>', '<C-u>zz')
@@ -882,23 +896,11 @@ vim.keymap.set('n', '<leader>gp', ':Git push<CR>')
 vim.keymap.set('n', '<leader>gf', ':Git fetch --all --prune --tags<CR>')
 vim.keymap.set('n', '<leader>gl', ':Git pull<CR>')
 vim.keymap.set('n', '<leader>ga', ':Git add -A<CR>')
+vim.keymap.set('n', '<leader>gt', ':Git add -A <Bar> Git commit <Bar> Git push<CR>')
 vim.keymap.set('n', '<leader>be', ':B64Encode<CR>')
 vim.keymap.set('n', '<leader>bd', ':B64Decode<CR>')
 vim.keymap.set('n', '<leader>tn', ':tabnew<CR>')
-vim.keymap.set('n', '<leader>nn', ':NvimTreeOpen<CR>')
+vim.keymap.set('n', '<leader>nn', ':NvimTreeToggle<CR>')
 
-local function commitWithJira()
-  local handle = io.popen 'git branch --show-current'
-  local branchName = handle:read '*a'
-  handle:close()
-  local returnString = ':Git add -A <Bar> :Git commit -m '
-
-  local match = string.match(branchName, '^([^-]+-[^-]+)')
-  if match then
-    returnString = returnString .. match .. ' <Bar> :Git push<CR>'
-  else
-    returnString = ''
-  end
-  return returnString
-end
-vim.keymap.set('n', '<leader>gg', commitWithJira())
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
