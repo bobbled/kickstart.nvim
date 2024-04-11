@@ -21,6 +21,7 @@ return {
         show_on_dirs = true,
         show_on_open_dirs = true,
       },
+      sync_root_with_cwd = true,
     }
   end,
 }
