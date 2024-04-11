@@ -16,6 +16,11 @@ return {
           min = 33,
         },
       },
+      modified = {
+        enable = true,
+        show_on_dirs = true,
+        show_on_open_dirs = true,
+      },
     }
   end,
 }
