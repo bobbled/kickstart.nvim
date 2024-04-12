@@ -230,6 +230,7 @@ require('lazy').setup({
   'tpope/vim-fugitive',
   'taybart/b64.nvim',
   's1n7ax/nvim-window-picker',
+  'b0o/schemastore.nvim',
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
@@ -541,8 +542,54 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        helm_ls = {},
-        yamlls = {},
+        helm_ls = {
+          settings = {
+            ['helm-ls'] = {
+              logLevel = 'info',
+              valuesFiles = {
+                mainValuesFile = 'values.yaml',
+                lintOverlayValuesFile = 'values.lint.yaml',
+                additionalValuesFilesGlobPattern = 'values*.yaml',
+              },
+              yamlls = {
+                enabled = true,
+                diagnosticsLimit = 50,
+                showDiagnosticsDirectly = false,
+                path = 'yaml-language-server',
+                config = {
+                  schemaStore = {
+                    enable = false,
+                    url = '',
+                  },
+                  schemas = require('schemastore').yaml.schemas {
+                    extra = {
+                      url = 'https://raw.githubusercontent.com/bitnami-labs/sealed-secrets/main/schema-v1alpha1.yaml',
+                      name = 'Sealed Secrets',
+                    },
+                  },
+                  completion = true,
+                  hover = true,
+                },
+              },
+            },
+          },
+        },
+        yamlls = {
+          settings = {
+            yaml = {
+              schemaStore = {
+                enable = false,
+                url = '',
+              },
+              schemas = require('schemastore').yaml.schemas {
+                extra = {
+                  url = 'https://raw.githubusercontent.com/bitnami-labs/sealed-secrets/main/schema-v1alpha1.yaml',
+                  name = 'Sealed Secrets',
+                },
+              },
+            },
+          },
+        },
         -- clangd = {},
         -- gopls = {},
         -- pyright = {},
@@ -868,7 +915,13 @@ require('lazy').setup({
 -- vim: ts=2 sts=2 sw=2 et
 
 -- My stuff
-vim.filetype.add { extensions = { gotmpl = 'yaml' } }
+vim.filetype.add {
+  pattern = {
+    ['.*/templates/.*%.yaml'] = 'helm',
+    ['*.gotmpl'] = 'helm',
+    ['helmfile.yaml'] = 'helm',
+  },
+}
 
 -- vim.opt.autochdir = true
 
@@ -898,6 +951,7 @@ vim.keymap.set('n', '<leader>gf', ':Git fetch --all --prune --tags<CR>')
 vim.keymap.set('n', '<leader>gl', ':Git pull<CR>')
 vim.keymap.set('n', '<leader>ga', ':Git add -A<CR>')
 vim.keymap.set('n', '<leader>gt', ':Git add -A <Bar> Git commit <Bar> Git push<CR>')
+vim.keymap.set('n', '<leader>gr', ':Git rebase -i develop<CR>')
 vim.keymap.set('n', '<leader>be', ':B64Encode<CR>')
 vim.keymap.set('n', '<leader>bd', ':B64Decode<CR>')
 vim.keymap.set('n', '<leader>tn', ':tabnew<CR>')
