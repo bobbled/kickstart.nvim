@@ -557,7 +557,6 @@ require('lazy').setup({
                 enabled = true,
                 diagnosticsLimit = 50,
                 showDiagnosticsDirectly = false,
-                path = 'yaml-language-server',
                 config = {
                   schemaStore = {
                     enable = false,
