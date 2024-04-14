@@ -14,6 +14,7 @@ return {
         width = {
           padding = 3,
           min = 33,
+          max = 50,
         },
       },
       modified = {
