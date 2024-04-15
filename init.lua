@@ -918,9 +918,9 @@ require('lazy').setup({
 -- My stuff
 vim.filetype.add {
   pattern = {
+    ['.*gotmpl'] = 'helm',
+    ['.*/helmfile.yaml'] = 'helm',
     ['.*/templates/.*%.yaml'] = 'helm',
-    ['*.gotmpl'] = 'helm',
-    ['helmfile.yaml'] = 'helm',
   },
 }
 
