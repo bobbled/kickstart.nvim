@@ -960,6 +960,9 @@ vim.keymap.set('n', '<leader>be', ':B64Encode<CR>')
 vim.keymap.set('n', '<leader>bd', ':B64Decode<CR>')
 vim.keymap.set('n', '<leader>tn', ':tabnew<CR>')
 vim.keymap.set('n', '<leader>nn', ':NvimTreeToggle<CR>')
+vim.keymap.set('n', '<leader>rd', ':!rsync -avz --delete ../${PWD##*/} dev:bitbucket/')
+vim.keymap.set('n', '<leader>rs', ':!rsync -avz --delete ../${PWD##*/} stgansz2:bitbucket/')
+vim.keymap.set('n', '<leader>rp', ':!rsync -avz --delete ../${PWD##*/} prodans:bitbucket/')
 
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
