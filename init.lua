@@ -928,6 +928,19 @@ vim.filetype.add {
 
 -- vim.opt.autochdir = true
 
+vim.keymap.set('n', '<leader>gs', function()
+  local handle = io.popen 'git branch --show-current'
+  local branchName = handle:read '*a'
+  handle:close()
+
+  local match = string.match(branchName, '^([^-]+-[^-]+)')
+  if not match then
+    match = 'bleh'
+  end
+  vim.cmd(':Git commit -m ' .. match)
+  vim.cmd ':Git push'
+end)
+
 vim.keymap.set('n', '<leader>gg', function()
   local handle = io.popen 'git branch --show-current'
   local branchName = handle:read '*a'
