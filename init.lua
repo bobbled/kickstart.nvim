@@ -154,6 +154,8 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+vim.opt.tabstop = 2
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -231,6 +233,7 @@ require('lazy').setup({
   'taybart/b64.nvim',
   's1n7ax/nvim-window-picker',
   'b0o/schemastore.nvim',
+  'pearofducks/ansible-vim',
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
@@ -544,55 +547,30 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        helm_ls = {
-          settings = {
-            ['helm-ls'] = {
-              logLevel = 'info',
-              valuesFiles = {
-                mainValuesFile = 'values.yaml',
-                lintOverlayValuesFile = 'values.lint.yaml',
-                additionalValuesFilesGlobPattern = 'values*.yaml',
-              },
-              yamlls = {
-                enabled = true,
-                diagnosticsLimit = 50,
-                showDiagnosticsDirectly = false,
-                config = {
-                  schemaStore = {
-                    enable = false,
-                    url = '',
-                  },
-                  schemas = require('schemastore').yaml.schemas {
-                    extra = {
-                      url = 'https://raw.githubusercontent.com/bitnami-labs/sealed-secrets/main/schema-v1alpha1.yaml',
-                      name = 'Sealed Secrets',
-                    },
-                  },
-                  completion = true,
-                  hover = true,
-                },
-              },
-            },
-          },
-        },
-        yamlls = {
-          settings = {
-            yaml = {
-              schemaStore = {
-                enable = false,
-                url = '',
-              },
-              schemas = require('schemastore').yaml.schemas {
-                extra = {
-                  url = 'https://raw.githubusercontent.com/bitnami-labs/sealed-secrets/main/schema-v1alpha1.yaml',
-                  name = 'Sealed Secrets',
-                },
-              },
-            },
-          },
-        },
+        --yamlls = {
+        --  settings = {
+        --    yaml = {
+        --      format = {
+        --        enable = true,
+        --        bracketSpacing = true,
+        --      },
+        --      schemaStore = {
+        --        enable = true,
+        --        url = 'https://www.schemastore.org/api/json/catalog.json',
+        --      },
+        --    },
+        --  },
+        --},
         -- clangd = {},
-        -- gopls = {},
+        gopls = {
+          settings = {
+            completeUnimported = true,
+            usePlaceholders = true,
+            analyses = {
+              unusedparams = true,
+            },
+          },
+        },
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -920,9 +898,9 @@ require('lazy').setup({
 -- My stuff
 vim.filetype.add {
   pattern = {
-    ['.*gotmpl'] = 'helm',
-    ['.*/helmfile.yaml'] = 'helm',
-    ['.*/templates/.*%.yaml'] = 'helm',
+    --    ['.*gotmpl'] = 'helm',
+    --    ['.*/helmfile.yaml'] = 'helm',
+    --    ['.*/templates/.*%.yaml'] = 'helm',
   },
 }
 
@@ -950,9 +928,9 @@ vim.keymap.set('n', '<leader>gg', function()
   if not match then
     match = 'bleh'
   end
-  vim.cmd ':Git add -A'
-  vim.cmd(':Git commit -m ' .. match)
-  vim.cmd ':Git push'
+  vim.cmd ':silent Git add -A'
+  vim.cmd(':silent Git commit -m ' .. match)
+  vim.cmd ':silent Git push'
 end)
 
 vim.keymap.set('n', '<C-d>', '<C-d>zz')
@@ -964,7 +942,7 @@ vim.keymap.set('n', '<leader>gi', ':Git<CR>')
 vim.keymap.set('n', '<leader>gc', ':Git commit<CR>')
 vim.keymap.set('n', '<leader>gd', ':Git checkout develop<CR>')
 vim.keymap.set('n', '<leader>gp', ':Git push<CR>')
-vim.keymap.set('n', '<leader>gf', ':Git fetch --all --prune --tags<CR>')
+vim.keymap.set('n', '<leader>gf', ':Git fetch --all --prune --tags --force<CR>')
 vim.keymap.set('n', '<leader>gl', ':Git pull<CR>')
 vim.keymap.set('n', '<leader>ga', ':Git add -A<CR>')
 vim.keymap.set('n', '<leader>gt', ':Git add -A <Bar> Git commit <Bar> Git push<CR>')
@@ -974,9 +952,21 @@ vim.keymap.set('n', '<leader>be', ':B64Encode<CR>')
 vim.keymap.set('n', '<leader>bd', ':B64Decode<CR>')
 vim.keymap.set('n', '<leader>tn', ':tabnew<CR>')
 vim.keymap.set('n', '<leader>nn', ':NvimTreeToggle<CR>')
-vim.keymap.set('n', '<leader>rd', ':!rsync -avz --delete ../${PWD\\#\\#*/} dev:bitbucket/<CR>')
-vim.keymap.set('n', '<leader>rs', ':!rsync -avz --delete ../${PWD\\#\\#*/} stgansz2:bitbucket/<CR>')
-vim.keymap.set('n', '<leader>rp', ':!rsync -avz --delete ../${PWD\\#\\#*/} prodans:bitbucket/<CR>')
+vim.keymap.set(
+  'n',
+  '<leader>rd',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') dev:bitbucket/<CR>"
+)
+vim.keymap.set(
+  'n',
+  '<leader>rs',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') stgansz2:bitbucket/<CR>"
+)
+vim.keymap.set(
+  'n',
+  '<leader>rp',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') prodans:bitbucket/<CR>"
+)
 
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
