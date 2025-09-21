@@ -102,10 +102,10 @@ vim.g.have_nerd_font = false
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
-vim.o.mouse = 'a'
+vim.o.mouse = ''
 
 -- Don't show the mode, since it's already in the status line
 vim.o.showmode = false
@@ -176,6 +176,9 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
+-- Custom
+vim.keymap.set('n', '<leader>t', ':terminal<CR>', { noremap = true, silent = true, desc = 'Open a terminal' })
+
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -185,10 +188,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -248,6 +251,55 @@ rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
+  {
+    'kevinhwang91/nvim-ufo',
+    event = 'BufRead',
+    dependencies = { 'kevinhwang91/promise-async' },
+    config = function()
+      vim.o.foldlevel = 99
+      vim.o.foldlevelstart = 99
+      vim.o.foldenable = true
+      require('ufo').setup()
+    end,
+  },
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    branch = 'v3.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'MunifTanjim/nui.nvim',
+      'nvim-tree/nvim-web-devicons',
+    },
+  },
+  {
+    'antosha417/nvim-lsp-file-operations',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-neo-tree/neo-tree.nvim', -- makes sure that this loads after Neo-tree.
+    },
+    config = function()
+      require('lsp-file-operations').setup()
+    end,
+  },
+  {
+    's1n7ax/nvim-window-picker',
+    version = '2.*',
+    config = function()
+      require('window-picker').setup {
+        filter_rules = {
+          include_current_win = false,
+          autoselect_one = true,
+          -- filter using buffer options
+          bo = {
+            -- if the file type is one of following, the window will be ignored
+            filetype = { 'neo-tree', 'neo-tree-popup', 'notify' },
+            -- if the buffer type is one of following, the window will be ignored
+            buftype = { 'terminal', 'quickfix' },
+          },
+        },
+      }
+    end,
+  },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -769,10 +821,12 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'isort', 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        go = { 'gofmt' },
+        yaml = { 'yamlfmt' },
       },
     },
   },
@@ -856,7 +910,7 @@ require('lazy').setup({
       sources = {
         default = { 'lsp', 'path', 'snippets', 'lazydev' },
         providers = {
-          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          lazydev = { name = 'LazyDev', module = 'lazydev.integrations.blink', score_offset = 100 },
         },
       },
 
@@ -869,7 +923,7 @@ require('lazy').setup({
       -- the rust implementation via `'prefer_rust_with_warning'`
       --
       -- See :h blink-cmp-config-fuzzy for more information
-      fuzzy = { implementation = 'lua' },
+      fuzzy = {},
 
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
