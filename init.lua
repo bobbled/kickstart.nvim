@@ -208,6 +208,76 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
+-- Custom Keymaps
+
+vim.keymap.set(
+  'n',
+  '<leader>rd',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') dev:bitbucket/<CR>",
+  { desc = 'Sync to dev environment' }
+)
+vim.keymap.set(
+  'n',
+  '<leader>rs',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') stgansz2:bitbucket/<CR>",
+  { desc = 'Sync to ECSstaging environment' }
+)
+vim.keymap.set(
+  'n',
+  '<leader>rp',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') prodans:bitbucket/<CR>",
+  { desc = 'Sync to ECS production environment' }
+)
+vim.keymap.set(
+  'n',
+  '<leader>rf',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') fdp:bitbucket/<CR>",
+  { desc = 'Sync to IFI DP bastion' }
+)
+
+vim.keymap.set(
+  'n',
+  '<leader>ro',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') foct:bitbucket/<CR>",
+  { desc = 'Sync to IFI octopus node' }
+)
+
+vim.keymap.set(
+  'n',
+  '<leader>ri',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') fstg:bitbucket/<CR>",
+  { desc = 'Sync to IFI staging bastion' }
+)
+
+vim.keymap.set(
+  'n',
+  '<leader>r8',
+  ":!rsync -avz --delete ../${PWD\\#\\#*/} $( [ -f rsync.excludes ] && echo '--exclude-from=rsync.excludes') fk8s:bitbucket/<CR>",
+  { desc = 'Sync to IFI k8s node' }
+)
+
+vim.keymap.set('n', '<leader>ry', ':!ssh fk8s ./sync_repo.sh<CR>', { desc = 'Force Gitea Sync' })
+
+vim.keymap.set('n', '<leader>rx', function()
+  local file = vim.fn.expand '%:p'
+  local quoted_file = vim.fn.shellescape(file)
+
+  -- Create a new scratch buffer in a vertical split
+  vim.cmd 'vnew'
+  local buf = vim.api.nvim_get_current_buf()
+
+  -- Set buffer options to make it ephemeral
+  vim.bo[buf].buftype = 'nofile'
+  vim.bo[buf].bufhidden = 'wipe'
+  vim.bo[buf].swapfile = false
+  vim.bo[buf].modifiable = true
+
+  -- Read the OpenSSL output into the buffer
+  vim.cmd('read !openssl x509 -in ' .. quoted_file .. ' -text -noout')
+end, { desc = 'OpenSSL decode current .crt file (ephemeral)' })
+
+vim.keymap.set('n', '<leader>tn', '<Cmd>Neotree toggle<CR>', { desc = 'Toggle NeoTree' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -269,6 +339,60 @@ require('lazy').setup({
       'nvim-lua/plenary.nvim',
       'MunifTanjim/nui.nvim',
       'nvim-tree/nvim-web-devicons',
+    },
+    opts = {
+      sources = { 'filesystem', 'buffers', 'git_status' },
+      window = {
+        mappings = {
+          ['T'] = {
+            function(state)
+              local node = state.tree:get_node()
+              if not node or not node.path or node.type ~= 'directory' then
+                print 'Not a valid directory node'
+                return
+              end
+
+              -- Escape shell path safely
+              local function shell_escape(path)
+                return "'" .. path:gsub("'", "'\\''") .. "'"
+              end
+
+              local escaped_path = shell_escape(node.path)
+
+              vim.cmd.vsplit()
+              vim.cmd.term()
+              local chan_id = vim.b.terminal_job_id
+              if chan_id then
+                vim.fn.chansend(chan_id, 'cd ' .. escaped_path .. '\n')
+                vim.fn.chansend(chan_id, 'clear\n')
+              else
+                print 'Failed to get terminal job ID'
+              end
+            end,
+            desc = 'Open terminal at directory',
+          },
+        },
+      },
+    },
+  },
+  {
+    'kdheepak/lazygit.nvim',
+    lazy = true,
+    cmd = {
+      'LazyGit',
+      'LazyGitConfig',
+      'LazyGitCurrentFile',
+      'LazyGitFilter',
+      'LazyGitFilterCurrentFile',
+    },
+    -- optional for floating window border decoration
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    -- setting the keybinding for LazyGit with 'keys' is recommended in
+    -- order to load the plugin when the command is run for the first time
+    keys = {
+      { '<leader>gg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
     },
   },
   {
